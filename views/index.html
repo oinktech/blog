@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客文章</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-5">博客文章列表</h1>
+
+        <div id="login-form" class="text-center"></div>
+        <div id="user-info" class="text-center mb-4"></div>
+
+        <div id="article-list" class="list-group">
+            <!-- 文章列表會動態加載 -->
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="/create" class="btn btn-primary">新增文章</a>
+        </div>
+    </div>
+
+    <script>
+        Clerk.load({ frontendApi: 'pk_test_dmFsdWVkLWtvZGlhay01LmNsZXJrLmFjY291bnRzLmRldiQ' });
+
+        Clerk.onReady(() => {
+            const user = Clerk.user;
+            if (user) {
+                document.getElementById('user-info').innerHTML = `你好，${user.firstName}`;
+            } else {
+                Clerk.mountSignIn(document.getElementById('login-form'));
+            }
+        });
+
+        // 動態加載文章列表
+        fetch('/api/articles')
+            .then(response => response.json())
+            .then(articles => {
+                const articleList = document.getElementById('article-list');
+                articles.forEach(article => {
+                    const articleItem = document.createElement('a');
+                    articleItem.classList.add('list-group-item', 'list-group-item-action');
+                    articleItem.href = `/blog/${article.id}`;
+                    articleItem.innerText = article.title;
+                    articleList.appendChild(articleItem);
+                });
+            });
+    </script>
+</body>
+</html>
